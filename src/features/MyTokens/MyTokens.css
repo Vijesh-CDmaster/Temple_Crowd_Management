@@ -1,0 +1,12 @@
+.token-qr {
+  background: linear-gradient(135deg, var(--temple-gold) 0%, #f4e4bc 100%);
+  transition: all 0.3s ease;
+}
+
+.token-card:hover {
+  transform: translateY(-4px);
+}
+
+.status-active {
+  @apply bg-green-100 text-green-800 border-green-200;
+}
