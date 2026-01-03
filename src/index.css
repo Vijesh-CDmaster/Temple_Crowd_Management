@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #F4E4BC 0%, #FDF6E3 100%);
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* TempleConnect Custom Colors */
+@layer utilities {
+  .bg-temple-gold { background-color: #D4A017; }
+  .text-temple-gold { color: #D4A017; }
+  .border-temple-gold { border-color: #D4A017; }
+  .bg-temple-beige { background-color: #F4E4BC; }
+  .text-temple-beige { color: #F4E4BC; }
+  .bg-temple-cream { background-color: #FDF6E3; }
+  .text-temple-dark { color: #4A5568; }
+}
