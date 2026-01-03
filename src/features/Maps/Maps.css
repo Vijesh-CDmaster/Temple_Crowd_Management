@@ -1,0 +1,25 @@
+/* Custom map styles */
+.leaflet-container {
+  @apply rounded-3xl;
+}
+
+.map-search-input {
+  @apply relative w-full;
+}
+
+.temple-marker {
+  @apply shadow-lg;
+}
+
+/* Scrollbar customization */
+.maps-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.maps-list::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded-full;
+}
+
+.maps-list::-webkit-scrollbar-thumb {
+  @apply bg-temple-gold/50 rounded-full;
+}
