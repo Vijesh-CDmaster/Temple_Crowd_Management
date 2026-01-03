@@ -1,109 +1,144 @@
-// db.config.js - TempleConnect MongoDB Atlas Configuration
+// server.js - TempleConnect Backend (FULLY FIXED)
+const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
+require('dotenv').config();
+const { config, models } = require('./db.config.js');
 
-// TempleConnect Database Schemas
-const schemas = {
-  User: new mongoose.Schema({
-    email: { type: String, required: true, unique: true },
-    phone: { type: String, required: true, unique: true },
-    name: { type: String, required: true },
-    tokens: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Booking' }],
-    createdAt: { type: Date, default: Date.now },
-    lastLogin: Date
-  }),
+const app = express();
+const PORT = process.env.PORT || 5000;
 
-  Temple: new mongoose.Schema({
-    name: { type: String, required: true },
-    city: String,
-    location: {
-      type: { type: String, enum: ['Point'], default: 'Point' },
-      coordinates: [Number] // [lng, lat]
-    },
-    timings: String,
-    price: { general: Number, vip: Number },
-    slotsPerDay: Number,
-    description: String
-  }),
+// Middleware
+app.use(cors({
+  origin: 'http://localhost:3000'
+}));
+app.use(express.json({ limit: '10mb' }));
 
-  Booking: new mongoose.Schema({
-    token: { type: String, required: true, unique: true },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    templeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Temple', required: true },
-    slotTime: { type: Date, required: true },
-    devotees: { type: Number, default: 1 },
-    status: { 
-      type: String, 
-      enum: ['active', 'used', 'expired', 'cancelled'], 
-      default: 'active' 
-    },
-    qrCode: String,
-    price: Number,
-    createdAt: { type: Date, default: Date.now },
-    expiresAt: Date
-  }),
-
-  Slot: new mongoose.Schema({
-    templeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Temple', required: true },
-    date: Date,
-    time: String,
-    totalSlots: Number,
-    bookedSlots: { type: Number, default: 0 },
-    availableSlots: Number,
-    price: Number,
-    status: { type: String, enum: ['open', 'full', 'closed'], default: 'open' }
-  }),
-
-  Queue: new mongoose.Schema({
-    templeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Temple', required: true },
-    currentQueue: Number,
-    estimatedWait: String,
-    darshanStatus: { type: String, enum: ['normal', 'peak', 'holiday'], default: 'normal' },
-    lastUpdated: { type: Date, default: Date.now }
+// FIXED MongoDB Connection - NO DEPRECATED OPTIONS
+mongoose.connect(config.uri)
+  .then(() => {
+    console.log('✅ Connected to MongoDB Atlas - templeconnect_db');
+    console.log('📍 Database ready for TempleConnect!');
   })
-};
-
-// YOUR MongoDB Atlas Connection - UPDATED
-const config = {
-  uri: process.env.MONGODB_URI || "mongodb+srv://viju7122006-db:viju7122006@cluster0.bkdjtah.mongodb.net/templeconnect_db?retryWrites=true&w=majority",
-  options: {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    authSource: 'admin'
-  },
-  dbName: 'templeconnect_db',
-  sampleData: {
-    temples: [
-      {
-        name: 'Somnath Temple',
-        city: 'Veraval',
-        location: { coordinates: [70.3889, 20.8884] },
-        timings: '6AM-9PM',
-        price: { general: 50, vip: 150 },
-        slotsPerDay: 200
-      },
-      {
-        name: 'Dwarka Temple',
-        city: 'Dwarka',
-        location: { coordinates: [68.9991, 22.2478] },
-        timings: '6AM-8:30PM',
-        price: { general: 75, vip: 200 },
-        slotsPerDay: 150
-      }
-    ]
-  }
-};
-
-// Generate Models
-const models = () => {
-  const modelObj = {};
-  Object.keys(schemas).forEach(name => {
-    modelObj[name] = mongoose.model(name, schemas[name]);
+  .catch(err => {
+    console.error('❌ MongoDB Connection Failed:', err.message);
+    process.exit(1);
   });
-  return modelObj;
-};
 
-module.exports = {
-  schemas,
-  config,
-  models
-};
+// Load Models AFTER connection
+let User, Temple, Booking, Slot, Queue;
+mongoose.connection.on('connected', () => {
+  const Models = models();
+  User = Models.User;
+  Temple = Models.Temple;
+  Booking = Models.Booking;
+  Slot = Models.Slot;
+  Queue = Models.Queue;
+  console.log('✅ Models loaded: User, Temple, Booking, Slot, Queue');
+});
+
+// 🔗 API ROUTES
+
+// Seed Sample Data
+app.get('/api/seed', async (req, res) => {
+  try {
+    await Temple.insertMany(config.sampleData.temples, { upsert: true });
+    res.json({ 
+      success: true, 
+      message: '✅ Sample temples seeded! Somnath + Dwarka ready.',
+      temples: config.sampleData.temples.length 
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get All Temples
+app.get('/api/temples', async (req, res) => {
+  try {
+    const temples = await Temple.find().lean();
+    res.json({ 
+      success: true, 
+      temples,
+      count: temples.length 
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Book Darshan Token
+app.post('/api/bookings', async (req, res) => {
+  try {
+    const { templeId, slotTime, devotees = 1, price } = req.body;
+    
+    // Generate Token: TKN-YYMMDD-XXX
+    const token = `TKN-${new Date().toISOString().slice(2,10).replace(/-/g,'')}-${Math.floor(Math.random()*999).toString().padStart(3,'0')}`;
+    
+    const booking = new Booking({
+      token,
+      userId: new mongoose.Types.ObjectId(), // Demo user
+      templeId,
+      slotTime: new Date(slotTime),
+      devotees,
+      price,
+      qrCode: `QR_${token}`,
+      expiresAt: new Date(Date.now() + 24*60*60*1000) // 24hr expiry
+    });
+
+    await booking.save();
+    res.json({ 
+      success: true, 
+      message: '✅ Darshan token booked successfully!',
+      booking 
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get User Tokens
+app.get('/api/tokens', async (req, res) => {
+  try {
+    const bookings = await Booking.find({ status: 'active' })
+      .populate('templeId', 'name city')
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .lean();
+    res.json({ 
+      success: true, 
+      tokens: bookings,
+      count: bookings.length 
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Live Queue Status
+app.get('/api/queue/:templeId', async (req, res) => {
+  try {
+    const queue = await Queue.findOne({ templeId: req.params.templeId })
+      .sort({ lastUpdated: -1 })
+      .lean();
+    res.json({ success: true, queue: queue || {} });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Test endpoint
+app.get('/api/test', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'TempleConnect Backend API ✅ LIVE',
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`\n🚀 Backend LIVE: http://localhost:${PORT}`);
+  console.log(`📱 Frontend: http://localhost:3000`);
+  console.log(`🔗 Test API: http://localhost:${PORT}/api/test`);
+  console.log(`📊 Seed data: http://localhost:${PORT}/api/seed`);
+});

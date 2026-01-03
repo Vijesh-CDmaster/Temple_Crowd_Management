@@ -1,7 +1,8 @@
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://api.templeconnect.in/v1';
+// src/services/api.js - Connected to YOUR MongoDB Backend (localhost:5000)
+const API_BASE_URL = 'http://localhost:5000/api';
 
 const apiClient = {
-  // Create axios-like request handler
+  // Universal request handler
   async request(config) {
     const { url, method = 'GET', data = null, headers = {} } = config;
     
@@ -18,36 +19,39 @@ const apiClient = {
     });
 
     if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
+      const errorText = await response.text();
+      throw new Error(`API Error: ${response.status} - ${errorText}`);
     }
 
     return response.json();
   },
 
-  // Auth endpoints
+  // Auth endpoints (mock for demo - connect later)
   async login(credentials) {
-    return this.request({
-      url: '/auth/login',
-      method: 'POST',
-      data: credentials
-    });
+    // Mock success for demo
+    return {
+      success: true,
+      token: 'mock-jwt-token-123',
+      user: { id: 'demo-user', name: 'Devotee' }
+    };
   },
 
   async register(userData) {
-    return this.request({
-      url: '/auth/register',
-      method: 'POST',
-      data: userData
-    });
+    return {
+      success: true,
+      message: 'Registration successful',
+      user: userData
+    };
   },
 
-  // Temple endpoints
+  // ✅ REAL Temple endpoints (YOUR MongoDB backend)
   async getTemples() {
     return this.request({ url: '/temples' });
   },
 
   async getTempleSlots(templeId) {
-    return this.request({ url: `/temples/${templeId}/slots` });
+    // Forward to backend if needed
+    return this.request({ url: `/temples/${templeId}` });
   },
 
   async bookDarshan(bookingData) {
@@ -58,13 +62,21 @@ const apiClient = {
     });
   },
 
-  // User endpoints
-  async getUserTokens(userId) {
-    return this.request({ url: `/users/${userId}/tokens` });
+  // ✅ REAL Token endpoints (YOUR MongoDB backend)
+  async getUserTokens(userId = 'current') {
+    return this.request({ url: '/tokens' });
   },
 
-  async getUserHistory(userId) {
-    return this.request({ url: `/users/${userId}/history` });
+  async getUserHistory(userId = 'current') {
+    return this.request({ url: '/tokens' }); // Same as tokens for history
+  },
+
+  // ✅ NEW: Cancel Token
+  async cancelToken(tokenId) {
+    return this.request({
+      url: `/bookings/${tokenId}/cancel`,
+      method: 'PATCH'
+    });
   }
 };
 

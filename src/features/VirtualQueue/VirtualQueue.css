@@ -1,11 +1,236 @@
+/* Virtual Queue Step Transitions */
 .virtual-queue-step {
-  @apply transition-all duration-500;
+  transition: all 0.5s ease;
 }
 
+/* Slot Card Animations */
 .slot-card {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .slot-card:hover:not(:disabled) {
   transform: scale(1.05) !important;
+}
+
+/* Temple Card Styles */
+.temple-card {
+  background: linear-gradient(135deg, #f5f5f0 0%, #e8e6dc 100%);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.temple-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.16);
+}
+
+.temple-card-header {
+  background: linear-gradient(135deg, #f5f5f0 0%, #e8e6dc 100%);
+  padding: 48px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.temple-icon-wrapper {
+  width: 96px;
+  height: 96px;
+  background: white;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.temple-card:hover .temple-icon-wrapper {
+  transform: scale(1.1);
+}
+
+.temple-icon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.temple-card-body {
+  background: white;
+  padding: 32px 24px;
+  border-radius: 24px 24px 0 0;
+  margin-top: -12px;
+  position: relative;
+}
+
+.temple-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+
+.temple-name-gold {
+  color: #d4a574;
+}
+
+.temple-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #e91e63;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.location-pin {
+  font-size: 14px;
+}
+
+.temple-description {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  min-height: 42px;
+}
+
+.temple-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #666;
+}
+
+.info-icon {
+  font-size: 16px;
+}
+
+.info-text {
+  flex: 1;
+}
+
+.available-slots-section {
+  margin-bottom: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.slots-heading {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.slots-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.slot-button {
+  background: #d4f4dd;
+  border: 1px solid #a8e6c1;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a7f37;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  flex: 1;
+  min-width: 90px;
+}
+
+.slot-button:hover:not(:disabled) {
+  background: #b8e8c8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.slot-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.slot-unavailable {
+  background: #f5f5f5;
+  border-color: #d5d5d5;
+  color: #999;
+  text-decoration: line-through;
+}
+
+.slot-time {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.slot-price {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.book-darshan-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #d4a574 0%, #c89456 100%);
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
+}
+
+.book-darshan-btn:hover {
+  background: linear-gradient(135deg, #c89456 0%, #b8844e 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(212, 165, 116, 0.4);
+}
+
+.book-darshan-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .temple-card-body {
+    padding: 24px 20px;
+  }
+  
+  .temple-name {
+    font-size: 20px;
+  }
+  
+  .temple-description {
+    font-size: 13px;
+  }
+  
+  .slots-grid {
+    flex-direction: column;
+  }
+  
+  .slot-button {
+    min-width: 100%;
+  }
 }

@@ -7,41 +7,39 @@ const History = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
 
-  // Mock data for demonstration
+  // ✅ REAL MongoDB - NO Fake Data
   useEffect(() => {
-    setTimeout(() => {
-      setVisits([
-        {
-          id: 1,
-          temple: 'Somnath Temple',
-          date: '2026-01-02',
-          time: '10:30 AM',
-          token: '#TKN-20260102-001',
-          status: 'completed',
-          duration: '45 mins'
-        },
-        {
-          id: 2,
-          temple: 'Dwarka Temple',
-          date: '2026-01-01',
-          time: '2:15 PM',
-          token: '#TKN-20260101-002',
-          status: 'completed',
-          duration: '30 mins'
-        },
-        {
-          id: 3,
-          temple: 'Akshardham',
-          date: '2025-12-30',
-          time: '11:00 AM',
-          token: '#TKN-20251230-003',
-          status: 'cancelled',
-          duration: 'N/A'
-        }
-      ]);
-      setLoading(false);
-    }, 1000);
+    fetchHistory();
   }, []);
+
+  const fetchHistory = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/tokens');
+      const data = await response.json();
+      
+      // Convert MongoDB bookings to History format
+      const formattedVisits = (data.tokens || []).map(booking => ({
+        id: booking._id,
+        temple: booking.templeId?.name || 'Temple',
+        date: new Date(booking.slotTime).toLocaleDateString('en-IN'),
+        time: new Date(booking.slotTime).toLocaleTimeString([], { 
+          hour: '2-digit', 
+          minute: '2-digit', 
+          hour12: true 
+        }),
+        token: `#${booking.token}`,
+        status: booking.status === 'active' ? 'pending' : booking.status,
+        duration: booking.status === 'cancelled' ? 'N/A' : '45 mins',
+        price: booking.price
+      }));
+      
+      setVisits(formattedVisits);
+    } catch (error) {
+      console.error('Error fetching history:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredVisits = visits.filter(visit => 
     filter === 'all' || visit.status === filter
@@ -111,9 +109,9 @@ const History = () => {
                 <span className="text-3xl">📜</span>
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2">No visits yet</h3>
-              <p className="text-gray-600 mb-8">Your pilgrimage history will appear here.</p>
+              <p className="text-gray-600 mb-8">Your pilgrimage history will appear here after booking darshan.</p>
               <Link
-                to="/temples"
+                to="/virtual-queue"
                 className="inline-flex items-center px-8 py-4 bg-temple-gold hover:bg-opacity-90 text-white font-semibold rounded-2xl shadow-lg transition-all duration-200"
               >
                 Book Your First Darshan

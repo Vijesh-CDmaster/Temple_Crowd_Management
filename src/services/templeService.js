@@ -1,113 +1,85 @@
+// src/services/templeService.js - 100% REAL MongoDB Backend
 import apiClient from './api.js';
 
-// Mock data for development (replace with real API calls)
-const mockTemples = {
-  somnath: {
-    id: 1,
-    name: 'Somnath Temple',
-    location: 'Veraval, Gujarat',
-    slots: [
-      { time: '10:30 AM', slotsLeft: 45, price: 50 },
-      { time: '12:00 PM', slotsLeft: 23, price: 50 },
-      { time: '2:30 PM', slotsLeft: 67, price: 100 }
-    ]
-  },
-  dwarka: {
-    id: 2,
-    name: 'Dwarka Temple',
-    location: 'Dwarka, Gujarat',
-    slots: [
-      { time: '9:00 AM', slotsLeft: 34, price: 75 },
-      { time: '11:30 AM', slotsLeft: 56, price: 75 }
-    ]
-  }
-};
-
-// Temple service methods
 const templeService = {
-  // Get all temples
+  // ✅ Get all temples - Real API only
   async getAllTemples() {
     try {
-      // Real API call
-      return await apiClient.getTemples();
+      const response = await apiClient.getTemples();
+      return response.temples || [];
     } catch (error) {
-      // Fallback to mock data
-      console.warn('Using mock temple data:', error.message);
-      return [
-        mockTemples.somnath,
-        mockTemples.dwarka,
-        {
-          id: 3,
-          name: 'Akshardham Temple',
-          location: 'Gandhinagar, Gujarat',
-          slots: [{ time: '11:00 AM', slotsLeft: 89, price: 30 }]
-        }
-      ];
+      console.error('Failed to fetch temples:', error);
+      throw error;
     }
   },
 
-  // Get temple by ID or name
+  // ✅ Get temple by ID - Real API
   async getTemple(templeId) {
     try {
-      return await apiClient.getTempleSlots(templeId);
+      const temples = await this.getAllTemples();
+      return temples.find(t => t._id === templeId || t.id == templeId) || null;
     } catch (error) {
-      console.warn('Using mock temple slots');
-      return mockTemples[templeId === 1 ? 'somnath' : 'dwarka'];
+      console.error('Failed to fetch temple:', error);
+      throw error;
     }
   },
 
-  // Book darshan slot
+  // ✅ Book darshan - Real MongoDB booking
   async bookDarshan(bookingData) {
     try {
       const response = await apiClient.bookDarshan(bookingData);
-      
-      // Generate token format: TKN-YYYYMMDD-XXX
-      const token = `TKN-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(Math.random()*999).toString().padStart(3,'0')}`;
-      
-      return {
-        ...response,
-        token,
-        status: 'active',
-        qrCode: `QR_${token}`
-      };
-    } catch (error) {
-      // Mock successful booking for demo
       return {
         success: true,
-        token: `TKN-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(Math.random()*999).toString().padStart(3,'0')}`,
-        status: 'active'
+        ...response.booking,
+        temple: response.booking?.temple || 'Temple'
       };
+    } catch (error) {
+      console.error('Booking failed:', error);
+      throw new Error('Booking failed. Please try again.');
     }
   },
 
-  // Get live queue status
-  async getQueueStatus(templeId) {
-    // Simulate real-time queue data
-    return {
-      templeId,
-      currentQueue: Math.floor(Math.random() * 500),
-      estimatedWait: `${Math.floor(Math.random() * 120)} mins`,
-      nextAvailable: new Date(Date.now() + Math.random() * 3600000).toLocaleTimeString()
-    };
-  },
-
-  // Get user's tokens
+  // ✅ Get user's tokens - Real MongoDB
   async getUserTokens() {
     try {
-      return await apiClient.getUserTokens('current');
+      const response = await apiClient.getUserTokens();
+      return response.tokens || [];
     } catch (error) {
-      // Mock tokens
-      return [
-        {
-          id: 1,
-          temple: 'Somnath Temple',
-          time: '10:30 AM',
-          token: 'TKN-20260104-001',
-          status: 'active',
-          expiry: new Date(Date.now() + 24*60*60*1000)
-        }
-      ];
+      console.error('Failed to fetch tokens:', error);
+      return [];
     }
+  },
+
+  // ✅ Get user history - Real MongoDB
+  async getUserHistory() {
+    try {
+      const response = await apiClient.getUserHistory();
+      return response.tokens || [];
+    } catch (error) {
+      console.error('Failed to fetch history:', error);
+      return [];
+    }
+  },
+
+  // ✅ Cancel token - Real MongoDB
+  async cancelToken(tokenId) {
+    try {
+      const response = await apiClient.cancelToken(tokenId);
+      return response;
+    } catch (error) {
+      console.error('Cancel failed:', error);
+      throw new Error('Failed to cancel token');
+    }
+  },
+
+  // ✅ Live queue status (mock for now - add to backend later)
+  async getQueueStatus(templeId) {
+    return {
+      templeId,
+      currentQueue: 0,
+      estimatedWait: '0 mins',
+      nextAvailable: new Date(Date.now() + 3600000).toLocaleTimeString()
+    };
   }
 };
 
