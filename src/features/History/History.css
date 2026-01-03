@@ -1,0 +1,15 @@
+/* Custom styles for History feature */
+.history-table {
+  @apply w-full;
+}
+
+.status-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.temple-logo {
+  @apply w-12 h-12 bg-gradient-to-br from-temple-gold to-amber-500 rounded-2xl flex items-center justify-center shadow-lg;
+}
+.temple-logo img {
+  @apply w-8 h-8;
+}
