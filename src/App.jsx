@@ -8,6 +8,7 @@ import VirtualQueue from './features/VirtualQueue/VirtualQueue';
 import MyTokens from './features/MyTokens/MyTokens';
 import History from './features/History/History';
 import Maps from './features/Maps/Maps';
+import Profile from './features/Profile/Profile';  // ✅ NEW PROFILE ROUTE
 import SignIn from './auth/SignIn';
 import SignUp from './auth/SignUp';
 
@@ -116,6 +117,15 @@ function AppContent() {
               element={
                 <ProtectedRoute>
                   <History />
+                </ProtectedRoute>
+              } 
+            />
+            {/* ✅ NEW PROFILE ROUTE - Login REQUIRED */}
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <Profile />
                 </ProtectedRoute>
               } 
             />

@@ -15,7 +15,8 @@ const Header = () => {
   const protectedNav = [
     { path: '/virtual-queue', label: 'Virtual Queue' },
     { path: '/my-tokens', label: 'My Tokens' },
-    { path: '/history', label: 'History' }
+    { path: '/history', label: 'History' },
+    { path: '/profile', label: 'Profile' }  // ✅ NEW!
   ];
 
   const isActive = (path) => location.pathname === path ? 'border-b-2 border-temple-gold text-temple-gold' : '';
@@ -57,13 +58,20 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* Right side - Auth & Mobile menu */}
+          {/* Right side - Auth & Profile */}
           <div className="flex items-center space-x-4">
             {isAuthenticated ? (
               <>
-                <span className="text-sm text-gray-700 hidden md:inline">
-                  {user?.email?.split('@')[0] || 'Devotee'}
-                </span>
+                {/* ✅ PROFILE LINK - Replaces username */}
+                <Link
+                  to="/profile"
+                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:shadow-lg hover:from-emerald-600 transition-all duration-200 text-sm hidden md:flex"
+                  title="View Profile"
+                >
+                  <span className="text-xl">👤</span>
+                  <span>{user?.fullName || user?.email?.split('@')[0] || 'Profile'}</span>
+                </Link>
+                
                 <button
                   onClick={logout}
                   className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium rounded-xl transition-all duration-200 text-sm"
