@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
+
   const temples = [
     { name: 'Somnath Temple', location: 'Veraval', image: '🛕' },
     { name: 'Dwarka Temple', location: 'Dwarka', image: '🛕' },
@@ -34,9 +37,36 @@ const Home = () => {
     }
   ];
 
+  // Check login status on mount
+  useEffect(() => {
+    const checkAuth = () => {
+      // Check localStorage, sessionStorage, or cookies for auth token
+      const token = localStorage.getItem('authToken') || 
+                   sessionStorage.getItem('authToken') ||
+                   document.cookie.split(';').find(row => row.includes('auth')) ||
+                   localStorage.getItem('user');
+      
+      setIsLoggedIn(!!token);
+      setLoading(false);
+    };
+
+    checkAuth();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-temple-beige to-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-temple-gold mx-auto mb-4"></div>
+          <p className="text-lg text-temple-dark">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gradient-to-br from-temple-beige to-white min-h-screen">
-      {/* Hero Section - Exact replica of your screenshot */}
+      {/* Hero Section */}
       <section className="relative overflow-hidden pt-24 pb-20">
         <div className="absolute inset-0 bg-gradient-to-br from-temple-gold/5 to-transparent"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -125,31 +155,50 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center bg-white/70 backdrop-blur-sm rounded-3xl p-12 shadow-2xl">
-          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 to-temple-dark bg-clip-text text-transparent mb-6">
-            Ready for Divine Darshan?
-          </h2>
-          <p className="text-xl text-temple-dark/80 mb-8 max-w-2xl mx-auto">
-            Join thousands of devotees booking seamless temple visits across Gujarat
-          </p>
-          <div className="space-x-4">
+      {/* ✅ CONDITIONAL CTA Section - HIDE FOR LOGGED IN USERS */}
+      {!isLoggedIn && (
+        <section className="py-24 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center bg-white/70 backdrop-blur-sm rounded-3xl p-12 shadow-2xl">
+            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 to-temple-dark bg-clip-text text-transparent mb-6">
+              Ready for Divine Darshan?
+            </h2>
+            <p className="text-xl text-temple-dark/80 mb-8 max-w-2xl mx-auto">
+              Join thousands of devotees booking seamless temple visits across Gujarat
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-2xl mx-auto">
+              <Link
+                to="/temples"
+                className="flex-1 inline-flex items-center justify-center px-10 py-4 bg-temple-gold hover:bg-opacity-90 text-white font-bold text-lg rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-300"
+              >
+                Book Now
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ✅ LOGGED IN USERS - Welcome Back Section */}
+      {isLoggedIn && (
+        <section className="py-24 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-3xl p-12 shadow-2xl">
+            <div className="w-24 h-24 bg-white/20 rounded-3xl mx-auto mb-8 flex items-center justify-center backdrop-blur-sm">
+              <span className="text-4xl">🙏</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 drop-shadow-2xl">
+              Welcome Back Devotee!
+            </h2>
+            <p className="text-2xl opacity-95 mb-12 max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
+              Continue your divine journey with TempleConnect
+            </p>
             <Link
-              to="/temples"
-              className="inline-flex items-center px-10 py-4 bg-temple-gold hover:bg-opacity-90 text-white font-bold text-lg rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-300"
+              to="/my-tokens"
+              className="inline-flex items-center px-12 py-5 bg-white hover:bg-opacity-90 text-gray-900 font-bold text-xl rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-300 backdrop-blur-sm"
             >
-              Book Now
-            </Link>
-            <Link
-              to="/signin"
-              className="inline-flex items-center px-10 py-4 border-2 border-temple-gold text-temple-gold font-bold text-lg rounded-3xl hover:bg-temple-gold hover:text-white transition-all duration-300"
-            >
-              Sign In
+              View My Tokens →
             </Link>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 };

@@ -1,7 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { AuthProvider } from './auth/AuthContext';
-import ProtectedRoute from './auth/ProtectedRoute';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './auth/AuthContext';
 import { Header, Footer } from './components';
 import Home from './features/Home/Home';
 import Temples from './features/Temples/Temples';
@@ -12,6 +11,7 @@ import Maps from './features/Maps/Maps';
 import SignIn from './auth/SignIn';
 import SignUp from './auth/SignUp';
 
+// Scroll to top on route change
 function ScrollToTop() {
   const { pathname } = useLocation();
   
@@ -22,6 +22,40 @@ function ScrollToTop() {
   return null;
 }
 
+// Protected Route Component
+function ProtectedRoute({ children }) {
+  const { isAuthenticated, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-temple-beige to-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-temple-gold mx-auto mb-4"></div>
+          <p className="text-lg text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  return isAuthenticated ? children : <Navigate to="/signin" replace />;
+}
+
+// Redirect if already authenticated
+function RedirectIfAuthenticated({ children }) {
+  const { isAuthenticated, loading } = useAuth();
+  
+  if (loading) return (
+    <div className="min-h-screen bg-gradient-to-br from-temple-beige to-white flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-temple-gold mx-auto mb-4"></div>
+        <p className="text-lg text-gray-600">Loading...</p>
+      </div>
+    </div>
+  );
+  
+  return isAuthenticated ? <Navigate to="/temples" replace /> : children;
+}
+
 function AppContent() {
   return (
     <Router>
@@ -30,14 +64,37 @@ function AppContent() {
         <ScrollToTop />
         <main>
           <Routes>
-            {/* Public Routes */}
+            {/* ✅ PUBLIC ROUTES (No Login Required) */}
             <Route path="/" element={<Home />} />
-            <Route path="/temples" element={<Temples />} />
             <Route path="/maps" element={<Maps />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/signup" element={<SignUp />} />
+            
+            {/* ✅ AUTH ROUTES - Redirect if already logged in */}
+            <Route 
+              path="/signin" 
+              element={
+                <RedirectIfAuthenticated>
+                  <SignIn />
+                </RedirectIfAuthenticated>
+              } 
+            />
+            <Route 
+              path="/signup" 
+              element={
+                <RedirectIfAuthenticated>
+                  <SignUp />
+                </RedirectIfAuthenticated>
+              } 
+            />
 
-            {/* Protected Routes - Login Required */}
+            {/* ✅ PROTECTED ROUTES - Login REQUIRED */}
+            <Route 
+              path="/temples" 
+              element={
+                <ProtectedRoute>
+                  <Temples />
+                </ProtectedRoute>
+              } 
+            />
             <Route 
               path="/virtual-queue" 
               element={
@@ -63,8 +120,8 @@ function AppContent() {
               } 
             />
 
-            {/* Catch all */}
-            <Route path="*" element={<Home />} />
+            {/* ✅ CATCH ALL - Redirect to Home */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
         <Footer />

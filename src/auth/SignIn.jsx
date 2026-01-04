@@ -1,90 +1,248 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
 
 const SignIn = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    rememberMe: false
+  });
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [failedAttempts, setFailedAttempts] = useState(0);
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+    // Clear errors on input
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!formData.email.match(/^\S+@\S+\.\S+$/)) {
+      newErrors.email = 'Please enter a valid email';
+    }
+    
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
+    
+    if (!validateForm()) return;
 
+    setLoading(true);
+    
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Simulate API call with delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
+      // Mock authentication (replace with real API)
+      const mockUsers = [
+        { email: 'devotee@example.com', password: 'Devotee@123', fullName: 'Shri Devotee' },
+        { email: 'admin@templeconnect.com', password: 'Admin@2024', fullName: 'Temple Admin' }
+      ];
+      
+      const user = mockUsers.find(u => 
+        u.email === formData.email && u.password === formData.password
+      );
+      
+      if (!user) {
+        setFailedAttempts(prev => prev + 1);
+        setErrors({ submit: failedAttempts >= 2 ? 'Account locked. Try Forgot Password.' : 'Invalid email or password.' });
+        return;
+      }
+      
+      // Success - login user
+      const mockToken = `temple-jwt-${Date.now()}-${user.email}`;
       const userData = {
-        token: 'temple_user_token_' + Date.now(),
-        email: formData.email
+        id: Date.now(),
+        fullName: user.fullName,
+        email: user.email,
+        role: user.email.includes('admin') ? 'admin' : 'user'
       };
       
-      login(userData);
-      navigate('/virtual-queue');
-    } catch (err) {
-      setError('Invalid credentials');
+      login(userData, mockToken);
+      
+      // Redirect based on role
+      if (formData.rememberMe) {
+        localStorage.setItem('rememberMe', 'true');
+      }
+      
+      setTimeout(() => {
+        navigate(user.role === 'admin' ? '/admin' : '/temples');
+      }, 1000);
+      
+    } catch (error) {
+      setErrors({ submit: 'Login failed. Please try again.' });
     } finally {
       setLoading(false);
     }
   };
 
+  const handleForgotPassword = (e) => {
+    e.preventDefault();
+    if (formData.email) {
+      alert(`Password reset link sent to ${formData.email}`);
+      // Navigate to reset page
+    } else {
+      setErrors({ email: 'Enter your email first' });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-temple-beige to-white py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md mx-auto bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
-          <p className="text-temple-dark/70">Sign in to your TempleConnect account</p>
+    <div className="min-h-screen bg-gradient-to-br from-temple-beige via-white to-orange-50 flex items-center justify-center py-12 px-4">
+      <div className="max-w-md w-full bg-white/95 backdrop-blur-sm rounded-3xl p-10 shadow-2xl border border-gray-100">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-2xl">
+            <span className="text-3xl">🔐</span>
+          </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-temple-dark bg-clip-text text-transparent mb-2">
+            Welcome Back
+          </h1>
+          <p className="text-gray-600">Sign in to continue your divine journey</p>
         </div>
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl mb-6">
-            {error}
+        {/* Failed Attempts Warning */}
+        {failedAttempts >= 3 && (
+          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-2xl mb-6 text-sm">
+            Account temporarily locked. Please use{' '}
+            <button 
+              onClick={handleForgotPassword}
+              className="font-semibold underline hover:no-underline"
+            >
+              Forgot Password
+            </button>
+            .
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Email Field */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Email Address
             </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-temple-gold focus:border-transparent transition duration-200"
-              placeholder="devotee@example.com"
-            />
+            <div className="relative">
+              <input
+                type="email"
+                name="email"
+                placeholder="devotee@example.com"
+                value={formData.email}
+                onChange={handleInputChange}
+                disabled={loading || failedAttempts >= 3}
+                className={`w-full pl-12 pr-4 py-4 border-2 rounded-2xl focus:ring-2 focus:ring-temple-gold focus:border-transparent transition-all shadow-sm ${
+                  errors.email 
+                    ? 'border-red-300 bg-red-50' 
+                    : 'border-gray-200 hover:border-gray-300'
+                } ${loading || failedAttempts >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}
+              />
+              <div className="absolute left-4 top-5 text-gray-400">📧</div>
+            </div>
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1 flex items-center">
+                <span className="w-4 h-4 bg-red-500 rounded-full mr-2 flex-shrink-0"></span>
+                {errors.email}
+              </p>
+            )}
           </div>
 
+          {/* Password Field */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-temple-gold focus:border-transparent transition duration-200"
-              placeholder="••••••••"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={handleInputChange}
+                disabled={loading || failedAttempts >= 3}
+                className={`w-full pl-12 pr-12 py-4 border-2 rounded-2xl focus:ring-2 focus:ring-temple-gold focus:border-transparent transition-all shadow-sm ${
+                  errors.password 
+                    ? 'border-red-300 bg-red-50' 
+                    : 'border-gray-200 hover:border-gray-300'
+                } ${loading || failedAttempts >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}
+              />
+              <div className="absolute left-4 top-5 text-gray-400">🔒</div>
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                disabled={loading || failedAttempts >= 3}
+                className="absolute right-4 top-5 text-gray-400 hover:text-gray-600 disabled:opacity-50"
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1 flex items-center">
+                <span className="w-4 h-4 bg-red-500 rounded-full mr-2 flex-shrink-0"></span>
+                {errors.password}
+              </p>
+            )}
           </div>
 
+          {/* Remember Me & Forgot Password */}
+          <div className="flex items-center justify-between">
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                name="rememberMe"
+                checked={formData.rememberMe}
+                onChange={handleInputChange}
+                disabled={loading || failedAttempts >= 3}
+                className="w-5 h-5 text-temple-gold rounded border-gray-300 focus:ring-temple-gold"
+              />
+              <span className="ml-3 text-sm text-gray-700">Remember me</span>
+            </label>
+            <button
+              onClick={handleForgotPassword}
+              disabled={!formData.email || loading}
+              className="text-sm font-semibold text-temple-gold hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Forgot Password?
+            </button>
+          </div>
+
+          {/* Submit Error */}
+          {errors.submit && (
+            <div className="bg-red-50 border-2 border-red-200 text-red-800 px-4 py-3 rounded-2xl text-sm">
+              {errors.submit}
+            </div>
+          )}
+
+          {/* Submit Button */}
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-temple-gold text-white py-3 px-4 rounded-xl font-semibold text-lg hover:bg-opacity-90 focus:ring-4 focus:ring-temple-gold/50 focus:outline-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+            disabled={!formData.email || !formData.password || loading || failedAttempts >= 3}
+            className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-4 px-8 rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 text-xl"
           >
             {loading ? (
               <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 <span>Signing In...</span>
               </>
             ) : (
@@ -93,13 +251,34 @@ const SignIn = () => {
           </button>
         </form>
 
-        <div className="mt-8 text-center">
-          <p className="text-sm text-gray-600">
+        {/* Divider */}
+        <div className="relative my-8">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-4 bg-white/90 text-gray-500">OR</span>
+          </div>
+        </div>
+
+        {/* Sign Up Link */}
+        <div className="text-center">
+          <p className="text-gray-600 text-sm">
             Don't have an account?{' '}
-            <Link to="/signup" className="font-semibold text-temple-gold hover:text-temple-gold/80 transition-colors">
-              Sign up here
+            <Link 
+              to="/signup" 
+              className="font-bold text-temple-gold hover:underline text-base"
+            >
+              Create Account →
             </Link>
           </p>
+        </div>
+
+        {/* Demo Credentials */}
+        <div className="mt-8 p-4 bg-blue-50 border-2 border-blue-200 rounded-2xl text-xs text-center">
+          <p className="font-semibold text-blue-800 mb-1">📱 Demo Login:</p>
+          <p><strong>devotee@example.com</strong> / <strong>Devotee@123</strong></p>
+          <p className="text-blue-700 mt-1">Click "Forgot Password?" for reset flow</p>
         </div>
       </div>
     </div>

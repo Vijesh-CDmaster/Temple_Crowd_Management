@@ -2,241 +2,267 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const Temples = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCity, setSelectedCity] = useState('all');
-  const [selectedTemple, setSelectedTemple] = useState(null);
+  const [currentTempleIndex, setCurrentTempleIndex] = useState(0);
 
   const temples = [
     {
       id: 1,
       name: 'Somnath Temple',
-      city: 'Veraval',
-      description: 'First of the 12 Jyotirlingas, sacred shrine of Lord Shiva',
-      timings: '6AM - 9PM',
-      distance: '320 km from Ahmedabad',
-      image: '🛕',
-      slots: [
-        { time: '10:30 AM', status: 'available', price: '₹50' },
-        { time: '2:00 PM', status: 'available', price: '₹100' },
-        { time: '6:00 PM', status: 'full', price: '₹150' }
-      ]
+      city: 'Prabhas Patan, Veraval, Gir Somnath District',
+      heroImage: 'https://girsomnath.nic.in/wp-content/uploads/2020/09/somnath-temple.jpg',
+      history: `The Somnath Temple, located in Prabhas Patan near Veraval in Saurashtra on the western coast of Gujarat, is one of the twelve Jyotirlinga shrines of Lord Shiva. It is the most sacred pilgrimage site for Shaivites.
+
+The present temple was reconstructed in May 1951 on the exact spot of the original, using the Chalukya style of architecture. This came after 17 documented destructions by Muslim invaders between 725 CE and 1947, including Mahmud of Ghazni (1024 CE) and Aurangzeb.
+
+Sardar Vallabhbhai Patel orchestrated the reconstruction. President Dr. Rajendra Prasad performed the Pran Pratishtha ceremony on 11 May 1951. The temple faces the Arabian Sea with its 50m high shikhara visible from 30km away.
+
+Architecturally, it features intricate carvings, a massive assembly hall, and the Trirutna ("three trident") symbol atop the sanctum. The temple complex includes the Prabhas Patan Museum housing ancient artifacts and sculptures recovered from the site.`,
+      significance: `Somnath holds immense spiritual importance as the first Jyotirlinga mentioned in the Dwadasa Jyotirlinga Stotram. Legends state that the moon god Chandra was cursed with tuberculosis and regained his luster by worshipping Shiva here.
+
+The temple symbolizes Hindu resilience against historical invasions. Every stone tells a story of destruction and rebirth. It attracts millions of pilgrims annually and remains a focal point of national pride.`,
+      facts: [
+        'First of 12 Jyotirlingas',
+        'Rebuilt 1951 by Sardar Patel',
+        '50m shikhara faces Arabian Sea',
+        '17 historical destructions',
+        'Chalukya architectural style'
+      ],
+      timings: '6:00 AM - 9:30 PM (Daily)',
+      bestTime: 'Oct-Mar (Pleasant weather)'
     },
     {
       id: 2,
-      name: 'Dwarka Temple',
-      city: 'Dwarka',
-      description: 'Ancient temple of Lord Krishna, one of Char Dham',
-      timings: '6AM - 8:30PM',
-      distance: '430 km from Ahmedabad',
-      image: '🛕',
-      slots: [
-        { time: '9:00 AM', status: 'available', price: '₹75' },
-        { time: '12:30 PM', status: 'available', price: '₹125' },
-        { time: '4:30 PM', status: 'available', price: '₹200' }
-      ]
+      name: 'Dwarkadhish Temple',
+      city: 'Dwarka, Devbhumi Dwarka District',
+      heroImage: 'https://devbhumidwarka.nic.in/wp-content/uploads/2020/09/dwarkadhish-temple.jpg',
+      history: `Dwarkadhish Temple, also known as Jagat Mandir, is one of the Char Dham pilgrimage sites dedicated to Lord Krishna. Located on Gomti creek, tradition holds it was originally built by Vajranabh, Krishna's grandson, 2500+ years ago.
+
+The current structure dates to the 15th-16th century with later modifications. The temple's 78m tall, five-story shikhara is visible from 10km with a flag that never falls flat, changed five times daily. The spire contains a large crystal said to be Krishna's heart.
+
+The temple complex spans 72 pillars supporting the main structure. Pilgrims enter through Swarga Dwar (72 steps up) and exit via Moksha Dwar. Continuous aarti occurs every 15 minutes throughout the day. The temple survived 7 historical destructions.`,
+      significance: `Dwarka represents Krishna's eternal kingdom (Dwarika = "many gates"). As one of Char Dham and Sapta Puri, it holds supreme spiritual importance. The Pancha Dwarka circuit includes nearby Gomti, Rukmini, Balaram, and Sudhama temples forming the complete pilgrimage.
+
+The temple's location where land meets sea symbolizes the meeting of material and spiritual worlds. Submerged ruins off Dwarka coast (discovered 1980s) confirm Mahabharata descriptions of ancient Dwaraka.`,
+      facts: [
+        'Char Dham & Sapta Puri',
+        '78m tall 5-story shikhara',
+        'Built 2500+ years ago',
+        '72 steps to Swarga Dwar',
+        'Aarti every 15 minutes'
+      ],
+      timings: '6:00 AM - 8:30 PM (Daily)',
+      bestTime: 'Nov-Feb (Cool weather)'
     },
     {
       id: 3,
       name: 'Akshardham Temple',
-      city: 'Gandhinagar',
-      description: 'Magnificent Swaminarayan temple with intricate carvings',
-      timings: '10AM - 7PM (Closed Mon)',
-      distance: '25 km from Ahmedabad',
-      image: '🛕',
-      slots: [
-        { time: '11:00 AM', status: 'available', price: '₹30' },
-        { time: '3:00 PM', status: 'full', price: '₹50' },
-        { time: '5:30 PM', status: 'available', price: '₹75' }
-      ]
+      city: 'Gandhinagar, Gandhinagar District',
+      heroImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Akshardham_Gandhinagar_01.jpg/800px-Akshardham_Gandhinagar_01.jpg',
+      history: `Swaminarayan Akshardham in Gandhinagar, inaugurated in 1992, is one of the largest temple complexes in India. Built without steel or iron using 6000 tons of pink sandstone from Rajasthan, it spans 23 acres with 108ft central shikhara.
+
+The complex features 97 intricately carved pillars, 17 domes depicting Hindu epics, and 11 exhibition halls. 20ft stone beams weighing 5 tons each demonstrate ancient construction techniques adapted for modern architecture.
+
+Over 200 master craftsmen and 7000 artisans worked for 13 years following Vastu Shastra principles. The central sanctum enshrines a 7ft gold-leafed murti of Lord Swaminarayan surrounded by celestial beings.`,
+      significance: `Akshardham represents the pinnacle of modern Hindu architecture and devotion. It showcases India's 10,000-year spiritual heritage through multimedia exhibitions from ancient sages to freedom struggle.
+
+The eternal river exhibit with 11,000 statues symbolizes the continuous flow of Indian culture. The complex receives over 2 million visitors annually and serves as a global center for Swaminarayan faith propagation and cultural education.`,
+      facts: [
+        'No steel/iron construction',
+        '6000 tons pink sandstone',
+        '23-acre temple complex',
+        'Built in 13 years (1992)',
+        '108ft central shikhara'
+      ],
+      timings: '10:00 AM - 7:00 PM (Closed Mondays)',
+      bestTime: 'Oct-Mar (Festivals)'
     },
     {
       id: 4,
-      name: 'Pavagarh Kalika Mata',
-      city: 'Pavagarh',
-      description: 'Hilltop temple dedicated to Goddess Kali',
-      timings: '5AM - 8PM',
-      distance: '180 km from Ahmedabad',
-      image: '🛕',
-      slots: [
-        { time: '8:00 AM', status: 'available', price: '₹25' },
-        { time: '1:00 PM', status: 'available', price: '₹50' },
-        { time: '5:00 PM', status: 'available', price: '₹75' }
-      ]
+      name: 'Ambaji Temple',
+      city: 'Ambaji, Banaskantha District',
+      heroImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Ambaji_Temple.jpg/800px-Ambaji_Temple.jpg',
+      history: `Ambaji Temple on Arasur hill is one of 51 Shakti Peeths where Sati's heart fell according to Puranic legend. Located near the origin of Saraswati river on Gujarat-Rajasthan border, it has been a major pilgrimage center for 1300+ years.
+
+The original seat is on nearby Gabbar hill featuring world's largest mythological light & sound show. The present temple structure dates to 19th century with origins tracing back to 6th century Solanki period.
+
+Bhadarva Purnima mela attracts 5+ million devotees annually. Navratri celebrations feature spectacular garba dances attracting devotees from across India. The temple houses sacred heart-shaped Shree Yantra.`,
+      significance: `As a primary Shakti Peeth, Ambaji represents the heart chakra of cosmic feminine energy (Adi Shakti). The temple serves as origin point for several important pilgrimages including Koteshwar and Karni Mata circuits.
+
+Its strategic location near Mount Abu and Rajasthan border makes it accessible to pilgrims from multiple states. The massive Navratri fair symbolizes triumph of good over evil and communal harmony between Hindu and tribal communities.`,
+      facts: [
+        'One of 51 Shakti Peeths',
+        "Sati's heart fell here",
+        '5M+ Navratri mela',
+        'Gabbar hill original site',
+        'Heart-shaped Shree Yantra'
+      ],
+      timings: '6:00 AM - 9:00 PM (Daily)',
+      bestTime: 'Sep-Oct (Navratri)'
     },
     {
       id: 5,
-      name: 'Ambaji Temple',
-      city: 'Ambaji',
-      description: 'One of 51 Shakti Peethas, heart-shaped Shree Yantra',
-      timings: '6AM - 9PM',
-      distance: '190 km from Ahmedabad',
-      image: '🛕',
-      slots: [
-        { time: '9:30 AM', status: 'available', price: '₹40' },
-        { time: '2:30 PM', status: 'available', price: '₹60' },
-        { time: '7:00 PM', status: 'full', price: '₹100' }
-      ]
+      name: 'Pavagarh Kalika Mata',
+      city: 'Pavagadh, Panchmahal District',
+      heroImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Kalika_Mata_Temple%2C_Pavagadh_Hill.jpg/800px-Kalika_Mata_Temple%2C_Pavagadh_Hill.jpg',
+      history: `Kalika Mata Temple crowns Pavagadh hill at 800m elevation, part of UNESCO World Heritage Champaner-Pavagadh Archaeological Park. Dating to 10th-11th century Hindu kings of Solanki dynasty, it houses red-painted Mahakali mukhwato (face).
+
+Flanked by Bhadrakali and Bahuchara Mata shrines, the complex demonstrates Hindu-Muslim harmony with adjacent Sadan Shah Pir Muslim shrine. Pilgrims traditionally climb 2500+ steps or use modern ropeway for darshan.
+
+The temple survived multiple invasions including Mahmud of Ghazni and represents medieval Hindu architecture with Jain influences. Part of larger temple ecosystem destroyed and rebuilt through centuries.`,
+      significance: `Pavagadh represents triumph of goddess worship over evil forces. Kalika Mata is worshipped as destroyer of demon Mahishasura and protector of devotees. The hilltop location symbolizes spiritual ascent from material world.
+
+UNESCO recognition preserves 100+ monuments spanning 800 years of continuous religious history. The pilgrimage route from Champaner base to hilltop represents journey from worldly desires to spiritual enlightenment. Ropeway provides modern access while preserving sanctity.`,
+      facts: [
+        'UNESCO World Heritage',
+        '10th century Solanki era',
+        '2500+ step pilgrimage',
+        '800m hilltop location',
+        'Hindu-Muslim harmony site'
+      ],
+      timings: '5:00 AM - 8:00 PM (Daily)',
+      bestTime: 'Sep-Oct (Navratri)'
     }
   ];
 
-  const filteredTemples = temples.filter(temple => {
-    const matchesSearch = temple.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         temple.city.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCity = selectedCity === 'all' || temple.city === selectedCity;
-    return matchesSearch && matchesCity;
-  });
-
-  const cities = ['all', ...new Set(temples.map(t => t.city))];
+  const currentTemple = temples[currentTempleIndex];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-temple-beige to-white py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-temple-gold to-amber-600 bg-clip-text text-transparent mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-orange-50">
+      {/* Hero Header */}
+      <div className="bg-gradient-to-r from-amber-600/90 to-orange-500/90 text-white py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/20" />
+        <div className="relative z-10 max-w-6xl mx-auto px-4 text-center">
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 drop-shadow-2xl">
             Sacred Temples of Gujarat
           </h1>
-          <p className="text-xl text-temple-dark/70 max-w-2xl mx-auto">
-            Discover and book darshan slots at Gujarat's most revered temples
+          <p className="text-2xl md:text-3xl opacity-95 max-w-3xl mx-auto drop-shadow-xl">
+            Official Information Portal | Government of Gujarat
           </p>
         </div>
+      </div>
 
-        {/* Filters */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-2xl mb-12">
-          <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
-            <div className="relative flex-1 max-w-md">
-              <input
-                type="text"
-                placeholder="Search temples or cities..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-2xl focus:ring-3 focus:ring-temple-gold/50 focus:border-transparent transition-all text-lg"
-              />
-              <div className="absolute left-5 top-5 text-xl text-gray-400">🔍</div>
+      {/* Single Temple Full History - GOVERNMENT STYLE */}
+      <div className="max-w-6xl mx-auto px-4 py-20">
+        {/* Temple Hero Image */}
+        <div className="relative h-[70vh] md:h-[80vh] rounded-3xl overflow-hidden shadow-2xl mb-16">
+          <img 
+            src={currentTemple.heroImage}
+            alt={currentTemple.name}
+            className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+            onError={(e) => {
+              e.target.src = 'https://via.placeholder.com/800x600/f9d4a4/8b4513?text=' + encodeURIComponent(currentTemple.name);
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
+          <div className="absolute bottom-8 left-8 right-8">
+            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-3xl shadow-2xl">
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                {currentTemple.name}
+              </h1>
+              <p className="text-2xl text-gray-700 font-semibold">{currentTemple.city}</p>
             </div>
-            
-            <div className="flex flex-wrap gap-3">
-              {cities.map(city => (
-                <button
-                  key={city}
-                  onClick={() => setSelectedCity(city)}
-                  className={`px-6 py-3 rounded-2xl font-semibold transition-all duration-200 shadow-lg ${
-                    selectedCity === city
-                      ? 'bg-temple-gold text-white shadow-temple-gold/25'
-                      : 'bg-white/60 hover:bg-white shadow-md text-gray-700'
-                  }`}
-                >
-                  {city === 'all' ? 'All Cities' : city}
-                </button>
-              ))}
+          </div>
+          
+          {/* Govt Badge */}
+          <div className="absolute top-6 left-6 bg-white/95 backdrop-blur-sm px-6 py-3 rounded-2xl shadow-xl border border-gray-200">
+            <div className="flex items-center space-x-3">
+              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+              <span className="font-bold text-gray-800 text-sm">Official Government Photo</span>
             </div>
           </div>
         </div>
 
-        {/* Temples Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredTemples.map((temple) => (
-            <div
-              key={temple.id}
-              className="group bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-3 cursor-pointer"
-              onClick={() => setSelectedTemple(temple)}
-            >
-              {/* Temple Image */}
-              <div className="h-80 bg-gradient-to-br from-temple-gold/20 to-temple-beige/50 p-12 flex flex-col items-center justify-center relative overflow-hidden">
-                <div className="w-32 h-32 bg-white/90 rounded-3xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300 z-10">
-                  <span className="text-5xl">{temple.image}</span>
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
-              </div>
-
-              {/* Temple Details */}
-              <div className="p-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-temple-gold transition-colors">
-                  {temple.name}
-                </h3>
-                <div className="flex items-center text-lg mb-3">
-                  <span className="text-temple-gold mr-2">📍</span>
-                  <span>{temple.city}</span>
-                </div>
-                <p className="text-gray-600 mb-4 leading-relaxed">{temple.description}</p>
-                
-                <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
-                  <div className="flex items-center">
-                    <span className="text-temple-gold mr-2">🕒</span>
-                    <span>{temple.timings}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-temple-gold mr-2">📏</span>
-                    <span>{temple.distance}</span>
-                  </div>
-                </div>
-
-                {/* Quick Slots */}
-                <div className="mb-8">
-                  <h4 className="font-semibold text-gray-900 mb-3">Available Slots</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {temple.slots.map((slot, idx) => (
-                      <Link
-                        key={idx}
-                        to="/virtual-queue"
-                        className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                          slot.status === 'available'
-                            ? 'bg-green-100 text-green-800 hover:bg-green-200 border border-green-300'
-                            : 'bg-gray-100 text-gray-500 line-through'
-                        }`}
-                      >
-                        {slot.time} ({slot.price})
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-
-                <Link
-                  to="/virtual-queue"
-                  className="w-full block text-center py-4 px-8 bg-gradient-to-r from-temple-gold to-amber-600 hover:from-opacity-90 text-white font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300"
-                >
-                  Book Darshan →
-                </Link>
+        {/* Temple Content - 2 Column Govt Layout */}
+        <div className="grid lg:grid-cols-3 gap-12 mb-20">
+          {/* Main History */}
+          <div className="lg:col-span-2 space-y-8">
+            <div className="bg-white/80 backdrop-blur-sm p-10 rounded-3xl shadow-2xl border border-gray-100">
+              <h2 className="text-4xl font-bold text-gray-900 mb-8 flex items-center">
+                <span className="w-12 h-12 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center text-2xl mr-4 text-white shadow-lg">
+                  📜
+                </span>
+                Historical Background
+              </h2>
+              <div className="prose prose-lg max-w-none text-gray-800 leading-relaxed">
+                <p className="text-lg mb-6">{currentTemple.history}</p>
               </div>
             </div>
-          ))}
+
+            <div className="bg-white/80 backdrop-blur-sm p-10 rounded-3xl shadow-2xl border border-gray-100">
+              <h2 className="text-4xl font-bold text-gray-900 mb-8 flex items-center">
+                <span className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center text-2xl mr-4 text-white shadow-lg">
+                  ✨
+                </span>
+                Spiritual Significance
+              </h2>
+              <div className="prose prose-lg max-w-none text-gray-800 leading-relaxed">
+                <p className="text-lg mb-6">{currentTemple.significance}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar Facts */}
+          <div className="space-y-6 lg:sticky lg:top-24 h-fit">
+            <div className="bg-gradient-to-br from-amber-500 to-orange-500 text-white p-8 rounded-3xl shadow-2xl">
+              <h3 className="text-2xl font-bold mb-6">Temple Information</h3>
+              <div className="space-y-4 text-lg">
+                <div className="flex items-center">
+                  <span className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-xl mr-4">
+                    🕐
+                  </span>
+                  <div>
+                    <div className="font-semibold opacity-90">Darshan Timings</div>
+                    <div className="text-sm opacity-80">{currentTemple.timings}</div>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-xl mr-4">
+                    🌤️
+                  </span>
+                  <div>
+                    <div className="font-semibold opacity-90">Best Time to Visit</div>
+                    <div className="text-sm opacity-80">{currentTemple.bestTime}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border border-gray-100">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Key Facts</h3>
+              <div className="space-y-3">
+                {currentTemple.facts.map((fact, idx) => (
+                  <div key={idx} className="flex items-start p-3 bg-gradient-to-r from-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                    <div className="w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0" />
+                    <span className="text-gray-800 leading-relaxed">{fact}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Link
+              to="/virtual-queue"
+              className="w-full block bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 text-white font-bold py-6 px-8 rounded-3xl shadow-2xl hover:shadow-3xl text-xl text-center transition-all duration-300"
+            >
+              Book Darshan Slot →
+            </Link>
+          </div>
         </div>
 
-        {filteredTemples.length === 0 && (
-          <div className="text-center py-24 col-span-full">
-            <div className="w-32 h-32 bg-gray-100 rounded-3xl mx-auto mb-8 flex items-center justify-center">
-              <span className="text-4xl">🛕</span>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">No temples found</h3>
-            <p className="text-gray-600 mb-8 text-lg">Try adjusting your search or city filter</p>
+        {/* Temple Navigation - CLICK ONLY (NO AUTO-SCROLL) */}
+        <div className="flex flex-wrap justify-center gap-4 mb-20">
+          {temples.map((temple, idx) => (
             <button
-              onClick={() => {
-                setSearchTerm('');
-                setSelectedCity('all');
-              }}
-              className="px-10 py-4 bg-temple-gold hover:bg-opacity-90 text-white font-bold text-lg rounded-2xl shadow-2xl hover:shadow-3xl transition-all"
+              key={temple.id}
+              onClick={() => setCurrentTempleIndex(idx)}
+              className={`px-8 py-4 rounded-2xl font-bold text-lg shadow-xl transition-all duration-300 border-4 ${
+                idx === currentTempleIndex
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-amber-400 shadow-2xl scale-105'
+                  : 'bg-white/80 hover:bg-white border-gray-200 hover:border-amber-300 hover:shadow-2xl hover:-translate-y-1 text-gray-800'
+              }`}
             >
-              Clear Filters
+              {temple.name}
             </button>
-          </div>
-        )}
-
-        {/* Stats */}
-        <div className="grid md:grid-cols-3 gap-6 mt-20 mb-12">
-          <div className="bg-white/70 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center">
-            <div className="text-3xl font-bold text-temple-gold mb-2">{temples.length}</div>
-            <div className="text-gray-600 font-semibold">Total Temples</div>
-          </div>
-          <div className="bg-white/70 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center">
-            <div className="text-3xl font-bold text-green-600 mb-2">
-              {temples.filter(t => t.slots.some(s => s.status === 'available')).length}
-            </div>
-            <div className="text-gray-600 font-semibold">Slots Available</div>
-          </div>
-          <div className="bg-white/70 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center">
-            <div className="text-3xl font-bold text-blue-600 mb-2">{filteredTemples.length}</div>
-            <div className="text-gray-600 font-semibold">Showing Results</div>
-          </div>
+          ))}
         </div>
       </div>
     </div>
