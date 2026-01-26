@@ -6,7 +6,7 @@ const WorkerSignIn = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    workerCode: ''
+    employeeId: ''
   });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -39,8 +39,8 @@ const WorkerSignIn = () => {
       newErrors.password = 'Password is required';
     }
 
-    if (!formData.workerCode.trim()) {
-      newErrors.workerCode = 'Worker code is required';
+    if (!formData.employeeId.trim()) {
+      newErrors.employeeId = 'Employee ID is required';
     }
 
     setErrors(newErrors);
@@ -74,9 +74,9 @@ const WorkerSignIn = () => {
         return;
       }
 
-      if (worker.workerCode !== formData.workerCode.toUpperCase()) {
+      if (worker.employeeId !== formData.employeeId.toUpperCase()) {
         setFailedAttempts(prev => prev + 1);
-        setErrors({ submit: 'Invalid worker code' });
+        setErrors({ submit: 'Invalid employee ID' });
         return;
       }
 
@@ -87,7 +87,7 @@ const WorkerSignIn = () => {
         fullName: worker.fullName,
         email: worker.email,
         phone: worker.phone,
-        workerId: worker.workerId,
+        employeeId: worker.employeeId,
         department: worker.department,
         templeCity: worker.templeCity,
         role: 'worker'
@@ -174,24 +174,25 @@ const WorkerSignIn = () => {
             {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
           </div>
 
-          {/* Worker Code Field */}
+          {/* Employee ID Field */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Worker Code</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">👤 Employee ID</label>
             <div className="relative">
               <input
                 type="text"
-                name="workerCode"
-                placeholder="WORKER1A2B3C4D5E"
-                value={formData.workerCode}
+                name="employeeId"
+                placeholder="e.g., EMP1234567890"
+                value={formData.employeeId}
                 onChange={handleInputChange}
                 disabled={loading || failedAttempts >= 3}
-                className={`w-full pl-12 pr-4 py-4 border-2 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm font-mono ${
-                  errors.workerCode ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                className={`w-full pl-12 pr-4 py-4 border-2 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm font-mono uppercase ${
+                  errors.employeeId ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                 }`}
               />
-              <div className="absolute left-4 top-5 text-gray-400">🔐</div>
+              <div className="absolute left-4 top-5 text-gray-400">🏷️</div>
             </div>
-            {errors.workerCode && <p className="text-red-500 text-sm mt-1">{errors.workerCode}</p>}
+            {errors.employeeId && <p className="text-red-500 text-sm mt-1">{errors.employeeId}</p>}
+            <p className="text-xs text-gray-500 mt-1">You received this ID when you signed up</p>
           </div>
 
           {/* Submit Button */}

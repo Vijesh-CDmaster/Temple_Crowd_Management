@@ -96,8 +96,11 @@ const AdminSignIn = () => {
         fullName: admin.fullName,
         email: admin.email,
         role: 'admin',
+        templeId: adminData?.templeId || '',
+        templeName: adminData?.templeName || '',
         templeCity: adminData?.templeCity || '',
-        templeId: adminData?.templeId || ''
+        templeState: adminData?.templeState || '',
+        verificationCode: formData.verificationCode
       };
       
       login(adminLoginData, mockToken);
@@ -226,23 +229,23 @@ const AdminSignIn = () => {
           {/* Verification Code Field */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Verification Code
+              🔐 Admin ID Verification Code
             </label>
             <div className="relative">
               <input
                 type="text"
                 name="verificationCode"
-                placeholder="ADMIN1234567"
+                placeholder="e.g., ID001, ID002, ..."
                 value={formData.verificationCode}
                 onChange={handleInputChange}
                 disabled={loading || failedAttempts >= 3}
-                className={`w-full pl-12 pr-4 py-4 border-2 rounded-2xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all shadow-sm ${
+                className={`w-full pl-12 pr-4 py-4 border-2 rounded-2xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all shadow-sm font-mono ${
                   errors.verificationCode 
                     ? 'border-red-300 bg-red-50' 
                     : 'border-gray-200 hover:border-gray-300'
                 } ${loading || failedAttempts >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}
               />
-              <div className="absolute left-4 top-5 text-gray-400">🔐</div>
+              <div className="absolute left-4 top-5 text-gray-400">🏛️</div>
             </div>
             {errors.verificationCode && (
               <p className="text-red-500 text-sm mt-1 flex items-center">
@@ -250,7 +253,10 @@ const AdminSignIn = () => {
                 {errors.verificationCode}
               </p>
             )}
-            <p className="text-xs text-gray-500 mt-1">You received this code when you signed up</p>
+            <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
+              <p className="font-semibold">📋 Valid Admin IDs:</p>
+              <p>ID001, ID002, ID003, ID004, ID005, ID006, ID007</p>
+            </div>
           </div>
 
           {/* Remember Me & Forgot Password */}

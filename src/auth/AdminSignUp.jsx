@@ -51,10 +51,39 @@ const AdminSignUp = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    
+    if (name === 'templeId') {
+      const upperValue = value.toUpperCase();
+      const temple = temples.find(t => t.id === upperValue);
+      
+      if (temple) {
+        setFormData(prev => ({
+          ...prev,
+          templeId: upperValue,
+          templeName: temple.name,
+          templeCity: temple.city,
+          templeState: temple.state
+        }));
+        setSelectedTemple(temple);
+        // Clear error for this field
+        setErrors(prev => ({ ...prev, templeId: '' }));
+      } else if (upperValue.length > 0) {
+        setSelectedTemple(null);
+        // Show error if user typed something but it doesn't match
+        if (upperValue.length === 5) {
+          setErrors(prev => ({ ...prev, templeId: 'Invalid Admin ID. Check your assigned ID.' }));
+        }
+      } else {
+        setSelectedTemple(null);
+        setErrors(prev => ({ ...prev, templeId: '' }));
+      }
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      }));
+    }
+    
     if (name === 'password') {
       const { score } = validatePassword(value);
       setStrength(score);
@@ -65,9 +94,7 @@ const AdminSignUp = () => {
     const newErrors = {};
     if (!formData.fullName.trim()) newErrors.fullName = 'Full name is required';
     if (!formData.email.match(/^\S+@\S+\.\S+$/)) newErrors.email = 'Valid email required';
-    if (!formData.templeId.trim()) newErrors.templeId = 'Temple ID is required';
-    if (!formData.templeCity.trim()) newErrors.templeCity = 'Temple city is required';
-    if (!formData.adminCode.trim()) newErrors.adminCode = 'Admin verification code is required';
+    if (!formData.templeId.trim()) newErrors.templeId = 'Temple assignment is required';
     if (!formData.password) newErrors.password = 'Password is required';
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords must match';
     if (!formData.termsAccepted) newErrors.termsAccepted = 'Accept terms & conditions';
@@ -88,16 +115,20 @@ const AdminSignUp = () => {
     setLoading(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
-      const newVerificationCode = generateVerificationCode();
+      const newVerificationCode = generateVerificationCode(formData.templeId);
       const mockAdmin = {
         id: Date.now(),
         fullName: formData.fullName,
         email: formData.email,
         templeId: formData.templeId,
+        templeName: formData.templeName,
         templeCity: formData.templeCity,
+        templeState: formData.templeState,
+        password: formData.password,
+        verificationCode: newVerificationCode,
+        registeredAt: new Date().toISOString(),
         role: 'admin',
-        verified: false,
-        verificationCode: newVerificationCode
+        verified: false
       };
       localStorage.setItem('adminData', JSON.stringify(mockAdmin));
       setVerificationCode(newVerificationCode);
@@ -130,19 +161,31 @@ const AdminSignUp = () => {
           </div>
 
           <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 mb-8">
-            <h3 className="font-bold text-blue-900 mb-4">📋 Your Admin Details:</h3>
+            <h3 className="font-bold text-blue-900 mb-4">📋 Your Admin Profile:</h3>
             <div className="space-y-3 text-sm">
-              <p className="text-gray-800"><strong>Name:</strong> {formData.fullName}</p>
-              <p className="text-gray-800"><strong>Email:</strong> {formData.email}</p>
-              <p className="text-gray-800"><strong>Temple:</strong> {formData.templeCity} (ID: {formData.templeId})</p>
+              <p className="text-gray-800"><strong>👤 Full Name:</strong> {formData.fullName}</p>
+              <p className="text-gray-800"><strong>📧 Email:</strong> {formData.email}</p>
             </div>
           </div>
 
+          {selectedTemple && (
+            <div className="bg-green-50 border-3 border-green-300 rounded-2xl p-8 mb-8">
+              <h3 className="font-bold text-green-900 text-lg mb-4">🏛️ Your Assigned Temple:</h3>
+              <div className="space-y-2 text-sm bg-white rounded-xl p-4 border border-green-200">
+                <p className="text-gray-800"><strong>Admin ID:</strong> <span className="font-bold text-green-600">{selectedTemple.id}</span></p>
+                <p className="text-gray-800"><strong>Temple Name:</strong> {selectedTemple.name}</p>
+                <p className="text-gray-800"><strong>City:</strong> {selectedTemple.city}</p>
+                <p className="text-gray-800"><strong>State:</strong> {selectedTemple.state}</p>
+              </div>
+            </div>
+          )}
+
           <div className="bg-red-50 border-3 border-red-300 rounded-2xl p-8 mb-8">
             <h3 className="font-bold text-red-900 text-lg mb-2">🔐 Your Verification Code:</h3>
-            <p className="text-gray-600 text-sm mb-4">Save this code - you'll need it to sign in:</p>
+            <p className="text-gray-600 text-sm mb-4">This is your Admin ID. Save it - you'll need it to sign in:</p>
             <div className="bg-white border-2 border-red-300 rounded-xl p-6 text-center">
-              <p className="text-4xl font-bold text-red-600 tracking-widest font-mono">{verificationCode}</p>
+              <p className="text-5xl font-bold text-red-600 tracking-widest font-mono">{verificationCode}</p>
+              <p className="text-sm text-gray-600 mt-2">This matches your Admin ID assigned to {selectedTemple?.name}</p>
             </div>
             <p className="text-xs text-red-700 mt-4">⚠️ <strong>Important:</strong> Keep this code safe. You will need to enter it every time you sign in.</p>
           </div>
@@ -225,64 +268,47 @@ const AdminSignUp = () => {
             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Temple ID</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  name="templeId"
-                  placeholder="T001"
-                  value={formData.templeId}
-                  onChange={handleInputChange}
-                  disabled={loading}
-                  className={`w-full pl-12 pr-4 py-4 border-2 rounded-2xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all shadow-sm ${
-                    errors.templeId ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                />
-                <div className="absolute left-4 top-5 text-gray-400">🏛️</div>
-              </div>
-              {errors.templeId && <p className="text-red-500 text-sm mt-1">{errors.templeId}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Temple City</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  name="templeCity"
-                  placeholder="City Name"
-                  value={formData.templeCity}
-                  onChange={handleInputChange}
-                  disabled={loading}
-                  className={`w-full pl-12 pr-4 py-4 border-2 rounded-2xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all shadow-sm ${
-                    errors.templeCity ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                />
-                <div className="absolute left-4 top-5 text-gray-400">📍</div>
-              </div>
-              {errors.templeCity && <p className="text-red-500 text-sm mt-1">{errors.templeCity}</p>}
-            </div>
-          </div>
-
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Admin Verification Code</label>
-            <div className="relative">
-              <input
-                type="text"
-                name="adminCode"
-                placeholder="Enter your admin code"
-                value={formData.adminCode}
-                onChange={handleInputChange}
-                disabled={loading}
-                className={`w-full pl-12 pr-4 py-4 border-2 rounded-2xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all shadow-sm ${
-                  errors.adminCode ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                }`}
-              />
-              <div className="absolute left-4 top-5 text-gray-400">🔑</div>
-            </div>
-            {errors.adminCode && <p className="text-red-500 text-sm mt-1">{errors.adminCode}</p>}
+            <label className="block text-sm font-semibold text-gray-700 mb-2">🔐 Enter Your Admin ID</label>
+            <input
+              type="text"
+              name="templeId"
+              placeholder="e.g., ID001, ID002, ..."
+              value={formData.templeId}
+              onChange={handleInputChange}
+              disabled={loading}
+              maxLength="5"
+              className={`w-full px-4 py-4 border-2 rounded-2xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all shadow-sm font-mono uppercase ${
+                errors.templeId ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+              }`}
+            />
+            {errors.templeId && <p className="text-red-500 text-sm mt-1">{errors.templeId}</p>}
+            <p className="text-xs text-gray-500 mt-1">You should have received your Admin ID from temple administration</p>
           </div>
+
+          {selectedTemple && (
+            <div className="p-4 bg-green-50 border-2 border-green-200 rounded-2xl">
+              <p className="text-sm font-semibold text-green-800 mb-3">✅ Admin ID Verified</p>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span className="text-gray-600">Admin ID:</span>
+                  <p className="font-bold text-green-700 text-lg">{selectedTemple.id}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">Temple:</span>
+                  <p className="font-bold text-green-700">{selectedTemple.name}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">City:</span>
+                  <p className="font-bold text-green-700">{selectedTemple.city}</p>
+                </div>
+                <div>
+                  <span className="text-gray-600">State:</span>
+                  <p className="font-bold text-green-700">{selectedTemple.state}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
@@ -406,4 +432,27 @@ const AdminSignUp = () => {
             <div className="w-full border-t border-gray-300" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-4 bg-white/90 text-gray-500">OR</s
+            <span className="px-4 bg-white/90 text-gray-500">OR</span>
+          </div>
+        </div>
+
+        <div className="text-center">
+          <p className="text-gray-600 text-sm">
+            Already have an admin account?{' '}
+            <Link to="/admin-signin" className="font-bold text-red-600 hover:underline text-base">
+              Sign In →
+            </Link>
+          </p>
+        </div>
+
+        <div className="text-center mt-6 pt-6 border-t border-gray-200">
+          <Link to="/signup" className="text-sm text-gray-600 hover:text-gray-900 font-semibold">
+            ← Back to User Sign Up
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminSignUp;

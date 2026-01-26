@@ -6,6 +6,11 @@ const Header = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const location = useLocation();
 
+  // Hide header for admin and worker dashboards
+  if (user?.role === 'admin' || user?.role === 'worker') {
+    return null;
+  }
+
   const publicNav = [
     { path: '/', label: 'Home' },
     { path: '/temples', label: 'Temples' },

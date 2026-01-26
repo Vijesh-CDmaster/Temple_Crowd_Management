@@ -8,7 +8,6 @@ const WorkerSignUp = () => {
     phone: '',
     templeId: '',
     templeCity: '',
-    workerId: '',
     department: '',
     password: '',
     confirmPassword: ''
@@ -17,12 +16,15 @@ const WorkerSignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
-  const [workerCode, setWorkerCode] = useState('');
+  const [employeeId, setEmployeeId] = useState('');
 
   const departments = ['Security', 'Ground Maintenance', 'Queue Management', 'Hospitality', 'Medical', 'Administration'];
 
-  const generateWorkerCode = () => {
-    return 'WORKER' + Math.random().toString(36).substr(2, 9).toUpperCase();
+  const generateEmployeeId = () => {
+    // Format: EMP-TEMPLE-DATE-SEQUENCE
+    const timestamp = Date.now().toString().slice(-6); // Last 6 digits of timestamp
+    const random = Math.floor(Math.random() * 9000) + 1000; // 4-digit random number
+    return `EMP${timestamp}${random}`;
   };
 
   const handleInputChange = (e) => {
@@ -42,7 +44,7 @@ const WorkerSignUp = () => {
       uppercase: /[A-Z]/.test(password),
       lowercase: /[a-z]/.test(password),
       number: /[0-9]/.test(password),
-      special: /[!@#$%^&*]/.test(password)
+      special: /[!@#$%^&*(),.?":{}|<>\-_.~]/.test(password)
     };
     return rules;
   };
@@ -72,10 +74,6 @@ const WorkerSignUp = () => {
 
     if (!formData.templeCity.trim()) {
       newErrors.templeCity = 'Temple city is required';
-    }
-
-    if (!formData.workerId.trim()) {
-      newErrors.workerId = 'Worker ID is required';
     }
 
     if (!formData.department) {
@@ -109,8 +107,8 @@ const WorkerSignUp = () => {
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      const generatedCode = generateWorkerCode();
-      setWorkerCode(generatedCode);
+      const generatedId = generateEmployeeId();
+      setEmployeeId(generatedId);
 
       // Store worker data in localStorage
       const workerData = {
@@ -120,10 +118,9 @@ const WorkerSignUp = () => {
         phone: formData.phone,
         templeId: formData.templeId,
         templeCity: formData.templeCity,
-        workerId: formData.workerId,
+        employeeId: generatedId,
         department: formData.department,
         password: formData.password,
-        workerCode: generatedCode,
         registeredAt: new Date().toISOString(),
         role: 'worker'
       };
@@ -140,8 +137,8 @@ const WorkerSignUp = () => {
   };
 
   const handleCopyCode = () => {
-    navigator.clipboard.writeText(workerCode);
-    alert('Worker code copied to clipboard!');
+    navigator.clipboard.writeText(employeeId);
+    alert('Employee ID copied to clipboard!');
   };
 
   if (showSuccessScreen) {
@@ -156,14 +153,14 @@ const WorkerSignUp = () => {
           <p className="text-gray-600 mb-6">Welcome to TempleConnect Worker Portal</p>
 
           <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-6 mb-8 border-2 border-purple-200">
-            <p className="text-sm text-gray-600 mb-2">Your Worker Authentication Code</p>
-            <p className="text-2xl font-bold text-purple-600 mb-4 font-mono">{workerCode}</p>
-            <p className="text-xs text-gray-600 mb-4">Keep this code safe. You'll need it to sign in.</p>
+            <p className="text-sm text-gray-600 mb-2">👤 Your Employee ID</p>
+            <p className="text-3xl font-bold text-purple-600 mb-4 font-mono tracking-wider">{employeeId}</p>
+            <p className="text-xs text-gray-600 mb-4">Keep this ID safe. You'll need it to sign in along with your email and password.</p>
             <button
               onClick={handleCopyCode}
               className="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition-all"
             >
-              📋 Copy Code
+              📋 Copy Employee ID
             </button>
           </div>
 
@@ -281,23 +278,6 @@ const WorkerSignUp = () => {
               />
               {errors.templeCity && <p className="text-red-500 text-xs mt-1">{errors.templeCity}</p>}
             </div>
-          </div>
-
-          {/* Worker ID */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1">Worker ID (Employee ID)</label>
-            <input
-              type="text"
-              name="workerId"
-              placeholder="EMP12345"
-              value={formData.workerId}
-              onChange={handleInputChange}
-              disabled={loading}
-              className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                errors.workerId ? 'border-red-300 bg-red-50' : 'border-gray-300'
-              }`}
-            />
-            {errors.workerId && <p className="text-red-500 text-xs mt-1">{errors.workerId}</p>}
           </div>
 
           {/* Department */}
