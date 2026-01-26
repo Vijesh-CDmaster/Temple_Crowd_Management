@@ -4,14 +4,80 @@ import { Link } from 'react-router-dom';
 const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [alerts, setAlerts] = useState([
+    {
+      type: 'urgent',
+      title: 'Crowd Surge Alert',
+      message: 'High crowd level detected at Somnath Temple. Please wait or use Virtual Queue.'
+    },
+    {
+      type: 'warning',
+      title: 'Gate Closure',
+      message: 'East gate temporarily closed due to maintenance. Please use South gate.'
+    }
+  ]);
 
   const temples = [
-    { name: 'Somnath Temple', location: 'Veraval', image: '🛕' },
-    { name: 'Dwarka Temple', location: 'Dwarka', image: '🛕' },
-    { name: 'Akshardham', location: 'Gandhinagar', image: '🛕' },
-    { name: 'Pavagarh Temple', location: 'Pavagarh', image: '🛕' },
-    { name: 'Ambaji Temple', location: 'Ambaji', image: '🛕' },
-    { name: 'Bhalka Temple', location: 'Bhalka', image: '🛕' }
+    { 
+      name: 'Somnath Temple', 
+      location: 'Veraval', 
+      image: '🛕',
+      crowd: 'High',
+      crowdColor: 'text-red-600',
+      waitTime: '45 mins',
+      status: 'Open',
+      timing: '6:00 AM - 9:00 PM'
+    },
+    { 
+      name: 'Dwarka Temple', 
+      location: 'Dwarka', 
+      image: '🛕',
+      crowd: 'Medium',
+      crowdColor: 'text-yellow-600',
+      waitTime: '25 mins',
+      status: 'Open',
+      timing: '5:30 AM - 10:00 PM'
+    },
+    { 
+      name: 'Akshardham', 
+      location: 'Gandhinagar', 
+      image: '🛕',
+      crowd: 'Low',
+      crowdColor: 'text-green-600',
+      waitTime: '5 mins',
+      status: 'Open',
+      timing: '7:00 AM - 8:00 PM'
+    },
+    { 
+      name: 'Pavagarh Temple', 
+      location: 'Pavagarh', 
+      image: '🛕',
+      crowd: 'Medium',
+      crowdColor: 'text-yellow-600',
+      waitTime: '30 mins',
+      status: 'Open',
+      timing: '6:00 AM - 9:30 PM'
+    },
+    { 
+      name: 'Ambaji Temple', 
+      location: 'Ambaji', 
+      image: '🛕',
+      crowd: 'Low',
+      crowdColor: 'text-green-600',
+      waitTime: '10 mins',
+      status: 'Open',
+      timing: '6:30 AM - 8:30 PM'
+    },
+    { 
+      name: 'Bhalka Temple', 
+      location: 'Bhalka', 
+      image: '🛕',
+      crowd: 'High',
+      crowdColor: 'text-red-600',
+      waitTime: '60 mins',
+      status: 'Open',
+      timing: '5:00 AM - 10:00 PM'
+    }
   ];
 
   const features = [
@@ -40,7 +106,6 @@ const Home = () => {
   // Check login status on mount
   useEffect(() => {
     const checkAuth = () => {
-      // Check localStorage, sessionStorage, or cookies for auth token
       const token = localStorage.getItem('authToken') || 
                    sessionStorage.getItem('authToken') ||
                    document.cookie.split(';').find(row => row.includes('auth')) ||

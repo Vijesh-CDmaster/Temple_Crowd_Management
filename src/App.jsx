@@ -1,16 +1,22 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth/AuthContext';
-import { Header, Footer } from './components';
+import { Header, Footer, SOSEmergency } from './components';
 import Home from './features/Home/Home';
 import Temples from './features/Temples/Temples';
 import VirtualQueue from './features/VirtualQueue/VirtualQueue';
 import MyTokens from './features/MyTokens/MyTokens';
 import History from './features/History/History';
 import Maps from './features/Maps/Maps';
-import Profile from './features/Profile/Profile';  // ✅ NEW PROFILE ROUTE
+import Profile from './features/Profile/Profile';
+import AdminDashboard from './features/AdminDashboard/AdminDashboard';
 import SignIn from './auth/SignIn';
 import SignUp from './auth/SignUp';
+import AdminSignIn from './auth/AdminSignIn';
+import AdminSignUp from './auth/AdminSignUp';
+import WorkerSignIn from './auth/WorkerSignIn';
+import WorkerSignUp from './auth/WorkerSignUp';
+import WorkerDashboard from './auth/WorkerDashboard';
 
 // Scroll to top on route change
 function ScrollToTop() {
@@ -62,6 +68,7 @@ function AppContent() {
     <Router>
       <div className="App">
         <Header />
+        <SOSEmergency />
         <ScrollToTop />
         <main>
           <Routes>
@@ -126,6 +133,62 @@ function AppContent() {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              } 
+            />
+
+            {/* ✅ ADMIN AUTH ROUTES - Redirect if already logged in */}
+            <Route 
+              path="/admin-signin" 
+              element={
+                <RedirectIfAuthenticated>
+                  <AdminSignIn />
+                </RedirectIfAuthenticated>
+              } 
+            />
+            <Route 
+              path="/admin-signup" 
+              element={
+                <RedirectIfAuthenticated>
+                  <AdminSignUp />
+                </RedirectIfAuthenticated>
+              } 
+            />
+
+            {/* ✅ ADMIN PROTECTED ROUTE - Admin Login REQUIRED */}
+            <Route 
+              path="/admin-dashboard" 
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+
+            {/* ✅ WORKER AUTH ROUTES - Redirect if already logged in */}
+            <Route 
+              path="/worker-signin" 
+              element={
+                <RedirectIfAuthenticated>
+                  <WorkerSignIn />
+                </RedirectIfAuthenticated>
+              } 
+            />
+            <Route 
+              path="/worker-signup" 
+              element={
+                <RedirectIfAuthenticated>
+                  <WorkerSignUp />
+                </RedirectIfAuthenticated>
+              } 
+            />
+
+            {/* ✅ WORKER PROTECTED ROUTE - Worker Login REQUIRED */}
+            <Route 
+              path="/worker-dashboard" 
+              element={
+                <ProtectedRoute>
+                  <WorkerDashboard />
                 </ProtectedRoute>
               } 
             />

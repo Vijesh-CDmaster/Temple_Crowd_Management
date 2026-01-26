@@ -41,7 +41,7 @@ npm install
 npm start
 
 # 3. Open browser
-# http://localhost:3000
+# http://localho    st:3000
 ```
 
 ## 📁 Project Structure

@@ -12,6 +12,7 @@ const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
+  const [showAdminMenu, setShowAdminMenu] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -112,7 +113,63 @@ const SignIn = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-temple-beige via-white to-orange-50 flex items-center justify-center py-12 px-4">
-      <div className="max-w-md w-full bg-white/95 backdrop-blur-sm rounded-3xl p-10 shadow-2xl border border-gray-100">
+      <div className="max-w-md w-full bg-white/95 backdrop-blur-sm rounded-3xl p-10 shadow-2xl border border-gray-100 relative">
+        {/* Admin Menu Icon (Three Dots) */}
+        <div className="absolute top-6 right-6">
+          <button
+            onClick={() => setShowAdminMenu(!showAdminMenu)}
+            className="p-2 hover:bg-gray-100 rounded-full transition-all"
+            title="Admin Menu"
+          >
+            <svg className="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="5" r="2" />
+              <circle cx="12" cy="12" r="2" />
+              <circle cx="12" cy="19" r="2" />
+            </svg>
+          </button>
+
+          {/* Dropdown Menu */}
+          {showAdminMenu && (
+            <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-gray-200 z-50">
+              <div className="px-4 py-2 bg-gradient-to-r from-red-50 to-orange-50 rounded-t-2xl border-b border-gray-100">
+                <p className="text-xs font-bold text-red-600 uppercase">Admin Portal</p>
+              </div>
+              <Link
+                to="/admin-signin"
+                onClick={() => setShowAdminMenu(false)}
+                className="block px-4 py-3 text-sm text-gray-700 hover:bg-red-50 font-semibold border-b border-gray-100 flex items-center gap-2"
+              >
+                🔐 Admin Sign In
+              </Link>
+              <Link
+                to="/admin-signup"
+                onClick={() => setShowAdminMenu(false)}
+                className="block px-4 py-3 text-sm text-gray-700 hover:bg-red-50 font-semibold border-b border-gray-100 flex items-center gap-2"
+              >
+                📝 Admin Sign Up
+              </Link>
+
+              <div className="px-4 py-2 bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-gray-100">
+                <p className="text-xs font-bold text-purple-600 uppercase">Worker Portal</p>
+              </div>
+              <Link
+                to="/worker-signin"
+                onClick={() => setShowAdminMenu(false)}
+                className="block px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 font-semibold border-b border-gray-100 flex items-center gap-2"
+              >
+                👷 Worker Sign In
+              </Link>
+              <Link
+                to="/worker-signup"
+                onClick={() => setShowAdminMenu(false)}
+                className="block px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 rounded-b-2xl font-semibold flex items-center gap-2"
+              >
+                📋 Worker Sign Up
+              </Link>
+            </div>
+          )}
+        </div>
+
         {/* Header */}
         <div className="text-center mb-10">
           <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-2xl">
